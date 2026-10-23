@@ -461,13 +461,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Digits only
         value = value.replace(/\D/g, "");
 
-        // Pasted "+91XXXXXXXXXX" / "91XXXXXXXXXX" / "0XXXXXXXXXX"
-        if (value.length > 10 && value.startsWith("91")) {
-            value = value.substring(2);
-        } else if (value.length > 10 && value.startsWith("0")) {
-            value = value.substring(1);
-        }
-
         // Maximum 10 digits
         return value.substring(0, 10);
     }

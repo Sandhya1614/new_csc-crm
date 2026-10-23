@@ -81,7 +81,7 @@ def check_lead_exists(request):
     if phone:
         # Accept either the 10 digits typed in the form or a stored +91 number
         digits = ''.join(ch for ch in phone if ch.isdigit())[-10:]
-        qs = LeadCapture.objects.filter(phone_no=f'+91{digits}')
+        qs = LeadCapture.objects.filter(phone_no=f'{digits}')
 
         if lead_id:
             qs = qs.exclude(id=lead_id)
@@ -247,10 +247,10 @@ def lead_pipeline_view(request):
           Q(course_interested__icontains=search_query)
     )
 
-    if assigned_to and my_role != 'Sales Exec':
+    if assigned_to and my_role != 'Sales Exec lead':
         leads = leads.filter(assigned_to__id=assigned_to)
 
-    staffs = Staff.objects.filter(role__role_name__in=['BDE', 'Telecall', 'Sales Exec'], status='active')
+    staffs = Staff.objects.filter(role__role_name__in=['BDE', 'Telecall', 'Sales Exec lead'], status='active')
 
     no_results = False
     if (search_query or assigned_to) and leads.count() == 0:
@@ -326,7 +326,7 @@ def export_leads_csv(request):
             Q(course_interested__icontains=search_query)
         )
 
-    if assigned_to and my_role != 'Sales Exec':
+    if assigned_to and my_role != 'Sales Exec''Sales Exec leads':
         leads = leads.filter(assigned_to__id=assigned_to)
 
     if status:
@@ -369,7 +369,7 @@ def lead_conversion_report(request):
     leads_qs = LeadCapture.objects.all()
 
     # Sales Exec -> own assigned leads only
-    if my_role == 'Sales Exec':
+    if my_role == 'Sales Exec''Sales Exec leads':
         leads_qs = leads_qs.filter(assigned_to=my_staff)
 
     total_leads = leads_qs.count()

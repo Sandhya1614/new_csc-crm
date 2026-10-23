@@ -1,5 +1,6 @@
 import re
 from django import forms
+from django.db.models import Q
 from .models import *
 
 
@@ -39,8 +40,21 @@ class LeadCaptureForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Only active staff in these roles (BDE, Telecalling, Sales Executive,
+        # Sales Lead). Matching is case-insensitive and covers the role-name
+        # spellings used in the Staff model / admin.
+        assignable_roles = [
+            'BDE',
+            'Telecalling', 'Telecall', 'Telecaller',
+            'Sales Exec', 'Sales Executive',
+            'Sales Exec Lead', 'Sales Lead',
+        ]
+        role_filter = Q()
+        for role_name in assignable_roles:
+            role_filter |= Q(role__role_name__iexact=role_name)
+
         self.fields['assigned_to'].queryset = Staff.objects.filter(
-            role__role_name__in=['BDE', 'Telecall', 'Sales Exec'],
+            role_filter,
             status='active'
         )
 
@@ -54,16 +68,14 @@ class LeadCaptureForm(forms.ModelForm):
 
         # Tolerate the legacy "+91" prefix, but the number itself must be
         # exactly 10 digits starting with 6, 7, 8 or 9.
-        if phone.startswith('+91'):
-            phone = phone[3:]
-
+        
         if not re.fullmatch(r'[6-9]\d{9}', phone):
             raise forms.ValidationError(
                 'Enter a valid 10-digit Indian mobile number starting with 6, 7, 8 or 9.'
             )
 
-        # Stored in the existing "+91XXXXXXXXXX" format
-        return f'+91{phone}'
+        # Stored in the existing "93XXXXXXXX" format
+        return f'{phone}'
 
 
 # Call-log form
